@@ -1,60 +1,55 @@
-from MyLanguageLexer import MyLanguageLexer
-from MyLanguageParser import MyLanguageParser
-from MyLanguageVisitor import MyLanguageVisitor
-from antlr4 import *
+from MyLanguageLexer import myLanguageLexer
+from myLanguageParser import myLanguageParser
+from myLanguageVisitor import myLanguageVisitor
+from antlr4 import InputStream, CommonTokenStream
 
-class MyTreeVisitor(MyLanguageVisitor):
+class MyTreeVisitor(myLanguageVisitor):
     
-    # Обработка: print( <выражение> );
-    def visitPrintStat(self, ctx: MyLanguageParser.PrintStatContext):
+    def visitPrintStat(self, ctx: myLanguageParser.PrintStatContext):
         val = self.visit(ctx.expression())
         print(f"OUTPUT: {val}")
         return None
 
-    # Обработка: if ( <условие> ) <оператор>
-    def visitIfStat(self, ctx: MyLanguageParser.IfStatContext):
+
+    def visitIfStat(self, ctx: myLanguageParser.IfStatContext):
         condition_result = self.visit(ctx.condition())
         if condition_result:
             self.visit(ctx.statement())
         return None
 
-    # Обработка: if ( <условие> ) <оператор> else <оператор>
-    def visitIfElseStat(self, ctx: MyLanguageParser.IfElseStatContext):
+
+    def visitIfElseStat(self, ctx: myLanguageParser.IfElseStatContext):
         condition_result = self.visit(ctx.condition())
         if condition_result:
-            self.visit(ctx.statement(0)) # Ветка if
+            self.visit(ctx.statement(0)) 
         else:
-            self.visit(ctx.statement(1)) # Ветка else
+            self.visit(ctx.statement(1)) 
         return None
 
-    # Обработка: <выражение> < <выражение>
-    def visitLessCond(self, ctx: MyLanguageParser.LessCondContext):
+    def visitLessCond(self, ctx: myLanguageParser.LessCondContext):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
         return left < right
 
-    # Обработка: <выражение> == <выражение>
-    def visitEqualCond(self, ctx: MyLanguageParser.EqualCondContext):
+    def visitEqualCond(self, ctx: myLanguageParser.EqualCondContext):
         left = self.visit(ctx.left)
         right = self.visit(ctx.right)
         return left == right
 
-    # Обработка: I
-    def visitIntExpr(self, ctx: MyLanguageParser.IntExprContext):
+    def visitIntExpr(self, ctx: myLanguageParser.IntExprContext):
         return int(ctx.INT().getText())
 
-# Запуск анализатора
 def main():
     input_code = "if (1 < 2) if (3 == 4) print(0); else print(9);"
     
-    lexer = MyLanguageLexer(InputStream(input_code))
+    lexer = myLanguageLexer(InputStream(input_code))
     stream = CommonTokenStream(lexer)
-    parser = MyLanguageParser(stream)
+    parser = myLanguageParser(stream)
     
-    tree = parser.program() # Строим дерево
-    
+    tree = parser.program() 
+
     visitor = MyTreeVisitor()
-    visitor.visit(tree) # Обходим дерево и выполняем семантику
+    visitor.visit(tree) 
 
 if __name__ == '__main__':
     main()
